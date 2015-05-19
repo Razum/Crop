@@ -1,3 +1,5 @@
+"use strict"
+
 // variables
 var canvas, ctx;
 var image;
@@ -15,6 +17,7 @@ function Selection(x, y, w, h){
     this.py = y;
 
     this.csize = 10; // resize cubes size
+    this.cshift = 5;
 
     this.bHow = [false, false, false, false]; // hover statuses
     this.bDrag = [false, false, false, false]; // drag statuses
@@ -24,7 +27,7 @@ function Selection(x, y, w, h){
 // define Selection draw method
 Selection.prototype.draw = function(){
 
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(this.x, this.y, this.w, this.h);
 
@@ -35,17 +38,17 @@ Selection.prototype.draw = function(){
 
     // draw resize cubes
     ctx.fillStyle = '#e1e5e5';
-    ctx.fillRect(this.x - this.csize, this.y - this.csize, this.csize * 2, this.csize * 2);
-    ctx.fillRect(this.x + this.w - this.csize, this.y - this.csize, this.csize * 2, this.csize * 2);
-    ctx.fillRect(this.x + this.w - this.csize, this.y + this.h - this.csize, this.csize * 2, this.csize * 2);
-    ctx.fillRect(this.x - this.csize, this.y + this.h - this.csize, this.csize * 2, this.csize * 2);
+    ctx.fillRect(this.x + this.cshift, this.y + this.cshift, 2*this.csize, 2*this.csize);
+    ctx.fillRect(this.x + this.w - 2 * this.csize - this.cshift, this.y + this.cshift, this.csize * 2, this.csize * 2);
+    ctx.fillRect(this.x + this.w - 2 * this.csize - this.cshift, this.y + this.h - 2 * this.csize - this.cshift, this.csize * 2, this.csize * 2);
+    ctx.fillRect(this.x + this.cshift, this.y + this.h - 2 * this.csize - this.cshift, this.csize * 2, this.csize * 2);
 
     ctx.fillStyle = '#000';
-    ctx.fillRect(this.x - this.csize/2, this.y - this.csize/2, this.csize, this.csize);
-    ctx.fillRect(this.x + this.w - this.csize/2, this.y - this.csize/2, this.csize, this.csize);
-    ctx.fillRect(this.x + this.w - this.csize/2, this.y + this.h - this.csize/2, this.csize, this.csize);
-    ctx.fillRect(this.x - this.csize/2, this.y + this.h - this.csize/2, this.csize, this.csize);
-}
+    ctx.fillRect(this.x + this.cshift + this.csize/2 , this.y + this.cshift + this.csize/2, this.csize, this.csize);
+    ctx.fillRect(this.x + this.w - this.cshift - 1.5 * this.csize, this.y + this.cshift + this.csize/2, this.csize, this.csize);
+    ctx.fillRect(this.x + this.w - this.cshift - 1.5 * this.csize, this.y + this.h - this.cshift - 1.5 * this.csize, this.csize, this.csize);
+    ctx.fillRect(this.x + this.cshift + this.csize/2, this.y + this.h - this.cshift - 1.5 * this.csize, this.csize, this.csize);
+};
 
 
 
@@ -89,28 +92,28 @@ $(function(){
             theSelection.y = iMouseY - theSelection.py;
         }
 
-        for (i = 0; i < 4; i++) {
+        for (var i = 0; i < 4; i++) {
             theSelection.bHow[i] = false;
         }
-
         // hovering over resize cubes
-        if (iMouseX > theSelection.x - theSelection.csize && iMouseX < theSelection.x + theSelection.csize &&
-            iMouseY > theSelection.y - theSelection.csize && iMouseY < theSelection.y + theSelection.csize) {
+        if (iMouseX > theSelection.x + theSelection.cshift && iMouseX < theSelection.x + theSelection.cshift + 2 * theSelection.csize &&
+            iMouseY > theSelection.y + theSelection.cshift && iMouseY < theSelection.y + theSelection.cshift + 2 * theSelection.csize) {
 
             theSelection.bHow[0] = true;
+
         }
-        if (iMouseX > theSelection.x + theSelection.w-theSelection.csize && iMouseX < theSelection.x + theSelection.w + theSelection.csize &&
-            iMouseY > theSelection.y - theSelection.csize && iMouseY < theSelection.y + theSelection.csize) {
+        if (iMouseX > theSelection.x + theSelection.w - theSelection.cshift - 2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - theSelection.cshift &&
+            iMouseY > theSelection.y + theSelection.cshift && iMouseY < theSelection.y + theSelection.cshift + 2 * theSelection.csize) {
 
             theSelection.bHow[1] = true;
         }
-        if (iMouseX > theSelection.x + theSelection.w-theSelection.csize && iMouseX < theSelection.x + theSelection.w + theSelection.csize &&
-            iMouseY > theSelection.y + theSelection.h-theSelection.csize && iMouseY < theSelection.y + theSelection.h + theSelection.csize) {
+        if (iMouseX > theSelection.x + theSelection.w - theSelection.cshift - 2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - theSelection.cshift &&
+            iMouseY > theSelection.y + theSelection.h - theSelection.cshift - 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - theSelection.cshift) {
 
             theSelection.bHow[2] = true;
         }
-        if (iMouseX > theSelection.x - theSelection.csize && iMouseX < theSelection.x + theSelection.csize &&
-            iMouseY > theSelection.y + theSelection.h-theSelection.csize && iMouseY < theSelection.y + theSelection.h + theSelection.csize) {
+        if (iMouseX > theSelection.x + theSelection.cshift && iMouseX < theSelection.x + theSelection.cshift + 2 * theSelection.csize &&
+            iMouseY > theSelection.y + theSelection.h - theSelection.cshift - 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - theSelection.cshift) {
 
             theSelection.bHow[3] = true;
         }
@@ -142,7 +145,7 @@ $(function(){
             iFH = iMouseY - theSelection.py - iFY;
         }
 
-        if (iFW > theSelection.csize * 2 && iFH > theSelection.csize * 2) {
+        if (iFW > theSelection.csize * 6 && iFH > theSelection.csize * 6) {
             theSelection.w = iFW;
             theSelection.h = iFH;
 
@@ -179,13 +182,13 @@ $(function(){
         }
 
 
-        if (iMouseX > theSelection.x + theSelection.csize && iMouseX < theSelection.x+theSelection.w - theSelection.csize &&
-            iMouseY > theSelection.y + theSelection.csize && iMouseY < theSelection.y+theSelection.h - theSelection.csize) {
+        if (iMouseX > theSelection.x + theSelection.cshift +  2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - 2 * theSelection.csize - theSelection.cshift &&
+            iMouseY > theSelection.y + theSelection.cshift + 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - 2 * theSelection.csize - theSelection.cshift) {
 
             theSelection.bDragAll = true;
         }
 
-        for (i = 0; i < 4; i++) {
+        for (var i = 0; i < 4; i++) {
             if (theSelection.bHow[i]) {
                 theSelection.bDrag[i] = true;
             }
@@ -195,7 +198,7 @@ $(function(){
     $('#panel').mouseup(function(e) { // binding mouseup event
         theSelection.bDragAll = false;
 
-        for (i = 0; i < 4; i++) {
+        for (var i = 0; i < 4; i++) {
             theSelection.bDrag[i] = false;
         }
         theSelection.px = 0;
