@@ -66,11 +66,11 @@ function drawScene() { // main drawScene function
     theSelection.draw();
 }
 
-$(function(){
+document.addEventListener("DOMContentLoaded", function(){
     // loading source image
     image = new Image();
     image.onload = function () {
-    }
+    };
     image.src = 'images/image.jpg';
 
 
@@ -81,7 +81,7 @@ $(function(){
     // create initial selection
     theSelection = new Selection(200, 200, 200, 200);
 
-    $('#panel').mousemove(function(e) { // binding mouse move event
+    document.getElementById('panel').addEventListener("mousemove", function(e) { // binding mouse move event
         var canvasOffset = $(canvas).offset();
         iMouseX = Math.floor(e.pageX - canvasOffset.left);
         iMouseY = Math.floor(e.pageY - canvasOffset.top);
@@ -154,9 +154,9 @@ $(function(){
         }
 
         drawScene();
-    });
+    }, false);
 
-    $('#panel').mousedown(function(e) { // binding mousedown event
+    document.getElementById('panel').addEventListener("mousedown", function(e) { // binding mousedown event
         var canvasOffset = $(canvas).offset();
         iMouseX = Math.floor(e.pageX - canvasOffset.left);
         iMouseY = Math.floor(e.pageY - canvasOffset.top);
@@ -193,9 +193,9 @@ $(function(){
                 theSelection.bDrag[i] = true;
             }
         }
-    });
+    }, false);
 
-    $('#panel').mouseup(function(e) { // binding mouseup event
+    document.getElementById('panel').addEventListener("mouseup", function(e) { // binding mouseup event
         theSelection.bDragAll = false;
 
         for (var i = 0; i < 4; i++) {
@@ -203,7 +203,7 @@ $(function(){
         }
         theSelection.px = 0;
         theSelection.py = 0;
-    });
+    }, false);
 
     drawScene();
 });
@@ -216,7 +216,7 @@ function getResults() {
     temp_canvas.height = theSelection.h;
     temp_ctx.drawImage(image, theSelection.x, theSelection.y, theSelection.w, theSelection.h, 0, 0, theSelection.w, theSelection.h);
     var vData = temp_canvas.toDataURL();
-    $('#crop_result').attr('src', vData);
-    $('#results h2').text('Well done, we have prepared our cropped image, now you can save it if you wish');
+    document.getElementById('crop_result').setAttribute('src', vData);
+    document.querySelector('#results h2').textContent = 'Well done, we have prepared our cropped image, now you can save it if you wish';
 }
 
