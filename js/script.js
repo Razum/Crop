@@ -186,8 +186,8 @@ document.addEventListener("DOMContentLoaded", function(){
             }
 
 
-            theSelection.focal.x = iMouseX;
-            theSelection.focal.y = iMouseY;
+            theSelection.focal.x = iMouseX - theSelection.focal.w/2;
+            theSelection.focal.y = iMouseY - theSelection.focal.w/2;
         }
 
 
@@ -300,6 +300,24 @@ document.addEventListener("DOMContentLoaded", function(){
             theSelection.x = iFX;
             theSelection.y = iFY;
         }
+
+
+        if (theSelection.x > theSelection.focal.x) {
+            theSelection.focal.x = theSelection.x;
+        }
+
+        if (theSelection.x + theSelection.w - theSelection.focal.x - theSelection.focal.w < 0) {
+            theSelection.focal.x = theSelection.x + theSelection.w - theSelection.focal.w;
+        }
+
+        if (theSelection.y > theSelection.focal.y) {
+            theSelection.focal.y = theSelection.y;
+        }
+
+        if (theSelection.y + theSelection.h < theSelection.focal.y + theSelection.focal.w) {
+            theSelection.focal.y = theSelection.y + theSelection.h - theSelection.focal.w;
+        }
+
 
         drawScene();
     }, false);
