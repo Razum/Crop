@@ -7,7 +7,7 @@ var iMouseX, iMouseY = 1;
 var theSelection;
 
 // define Selection constructor
-function Selection(x, y, w, h){
+function Selection(x, y, w, h, focal){
     this.x = x; // initial positions
     this.y = y;
     this.w = w; // and size
@@ -16,12 +16,15 @@ function Selection(x, y, w, h){
     this.px = x; // extra variables to dragging calculations
     this.py = y;
 
-    this.csize = 10; // resize cubes size
-    this.cshift = 5;
+    this.csize = 12; // resize cubes size
+    this.cshift = 6;
+
+    this.focal = focal;
 
     this.bHow = [false, false, false, false]; // hover statuses
     this.bDrag = [false, false, false, false]; // drag statuses
     this.bDragAll = false; // drag whole selection
+    this.bFocalDrag = false;
 }
 
 
@@ -75,7 +78,13 @@ Selection.prototype.draw = function(){
     ctx.fillRect(this.x + this.cshift + this.csize/2, this.y + this.h - this.cshift - 1.5 * this.csize, this.csize, this.csize);
 };
 
-
+Selection.prototype.drawFocal = function () {
+    var focal = new Image();
+    focal.onload = function () {
+    };
+    focal.src = 'images/focal.png';
+    ctx.drawImage(focal, this.focal.x, this.focal.y, this.focal.w, this.focal.w);
+}
 
 function drawScene() { // main drawScene function
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clear canvas
@@ -89,6 +98,8 @@ function drawScene() { // main drawScene function
 
     // draw selection
     theSelection.draw();
+
+    theSelection.drawFocal();
 }
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -107,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
     // create initial selection
-    theSelection = new Selection(200, 200, 200, 200);
+    theSelection = new Selection(200, 200, 200, 200, {x: 100, y: 100, w: 34});
 
     document.getElementById('panel').addEventListener("mousemove", function(e) { // binding mouse move event
         var canvasOffset = getOffsetRect(canvas);
@@ -134,6 +145,9 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         }
 
+
+
+
         for (var i = 0; i < 4; i++) {
             theSelection.bHow[i] = false;
         }
@@ -159,6 +173,28 @@ document.addEventListener("DOMContentLoaded", function(){
 
             theSelection.bHow[3] = true;
         }
+
+
+
+
+
+
+
+        if (theSelection.bFocalDrag) {
+            for (var i = 0; i < 4; i++) {
+                theSelection.bHow[i] = false;
+            }
+
+
+            theSelection.focal.x = iMouseX;
+            theSelection.focal.y = iMouseY;
+        }
+
+
+
+
+
+
 
         // in case of dragging of resize cubes
         var iFW, iFH;
@@ -296,7 +332,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
         if (iMouseX > theSelection.x + theSelection.cshift +  2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - 2 * theSelection.csize - theSelection.cshift &&
             iMouseY > theSelection.y + theSelection.cshift + 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - 2 * theSelection.csize - theSelection.cshift) {
-
             theSelection.bDragAll = true;
         }
 
@@ -305,10 +340,23 @@ document.addEventListener("DOMContentLoaded", function(){
                 theSelection.bDrag[i] = true;
             }
         }
+
+
+        if (iMouseX > theSelection.focal.x && iMouseX < theSelection.focal.x + theSelection.focal.w && iMouseY > theSelection.focal.y && iMouseY < theSelection.focal.y + theSelection.focal.w) {
+            for (var i = 0; i < 4; i++) {
+                if (theSelection.bHow[i]) {
+                    theSelection.bDrag[i] = false;
+                }
+            }
+            theSelection.bDragAll = false;
+
+            theSelection.bFocalDrag = true;
+        }
     }, false);
 
     document.getElementById('panel').addEventListener("mouseup", function(e) { // binding mouseup event
         theSelection.bDragAll = false;
+        theSelection.bFocalDrag = false;
 
         for (var i = 0; i < 4; i++) {
             theSelection.bDrag[i] = false;
