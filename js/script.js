@@ -101,9 +101,9 @@ function drawScene() { // main drawScene function
     theSelection.drawFocal();
 }
 
-Selection.prototype.removeResizeBoxesHover = function () {
+Selection.prototype.removeResizeBoxesDrag = function () {
     for (var i = 0; i < 4; i++) {
-        this.bHow[i] = false;
+        this.bDrag[i] = false;
     }
 }
 
@@ -125,17 +125,29 @@ document.addEventListener("DOMContentLoaded", function(){
     // create initial selection
     theSelection = new Selection(200, 200, 200, 200, {x: 100, y: 100, w: 34});
 
-    document.getElementById('panel').addEventListener("mousemove", dragHandler, false);
-    document.getElementById('panel').addEventListener("mousedown", dragStartHandler, false);
-    document.getElementById('panel').addEventListener("mouseup", dragEndHandler, false);
+    canvas.addEventListener("mousemove", dragHandler, false);
+    canvas.addEventListener("mousedown", dragStartHandler, false);
+    canvas.addEventListener("mouseup", dragEndHandler, false);
+
+
+    canvas.addEventListener("touchmove", dragHandler, false);
+    canvas.addEventListener("touchstart", dragStartHandler, false);
+    canvas.addEventListener("touchend", dragEndHandler, false);
 
     drawScene();
 });
 
 function dragHandler (e) { // binding mouse move event
     var canvasOffset = getOffsetRect(canvas);
-    iMouseX = Math.floor(e.pageX - canvasOffset.left);
-    iMouseY = Math.floor(e.pageY - canvasOffset.top);
+    if (e.targetTouches && e.targetTouches.length == 1) { //one finger touche
+        e.stopPropagation()
+        var touch = e.targetTouches[0];
+        iMouseX = Math.floor(touch.pageX - canvasOffset.left);
+        iMouseY = Math.floor(touch.pageY - canvasOffset.top);
+    } else {
+        iMouseX = Math.floor(e.pageX - canvasOffset.left);
+        iMouseY = Math.floor(e.pageY - canvasOffset.top);
+    }
 
     // in case of drag of whole selector
     if (theSelection.bDragAll) {
@@ -159,54 +171,16 @@ function dragHandler (e) { // binding mouse move event
 
 
 
-    theSelection.removeResizeBoxesHover();
-
-
-    // hovering over resize cubes
-    if (iMouseX > theSelection.x + theSelection.cshift && iMouseX < theSelection.x + theSelection.cshift + 2 * theSelection.csize &&
-        iMouseY > theSelection.y + theSelection.cshift && iMouseY < theSelection.y + theSelection.cshift + 2 * theSelection.csize) {
-
-        theSelection.bHow[0] = true;
-
-    }
-    if (iMouseX > theSelection.x + theSelection.w - theSelection.cshift - 2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - theSelection.cshift &&
-        iMouseY > theSelection.y + theSelection.cshift && iMouseY < theSelection.y + theSelection.cshift + 2 * theSelection.csize) {
-
-        theSelection.bHow[1] = true;
-    }
-    if (iMouseX > theSelection.x + theSelection.w - theSelection.cshift - 2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - theSelection.cshift &&
-        iMouseY > theSelection.y + theSelection.h - theSelection.cshift - 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - theSelection.cshift) {
-
-        theSelection.bHow[2] = true;
-    }
-    if (iMouseX > theSelection.x + theSelection.cshift && iMouseX < theSelection.x + theSelection.cshift + 2 * theSelection.csize &&
-        iMouseY > theSelection.y + theSelection.h - theSelection.cshift - 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - theSelection.cshift) {
-
-        theSelection.bHow[3] = true;
-    }
-
-
-
-
-
-
-
     if (theSelection.bFocalDrag) {
-        theSelection.removeResizeBoxesHover();
+        theSelection.removeResizeBoxesDrag();
         theSelection.focal.x = iMouseX - theSelection.focal.w/2;
         theSelection.focal.y = iMouseY - theSelection.focal.w/2;
     }
 
 
-
-
-
-
-
     // in case of dragging of resize cubes
     var iFW, iFH;
     if (theSelection.bDrag[0]) {
-
         var iFX, iFY;
 
 
@@ -330,28 +304,63 @@ function dragHandler (e) { // binding mouse move event
 }
 function dragStartHandler (e) { // binding mousedown event
     var canvasOffset = getOffsetRect(canvas);
-    iMouseX = Math.floor(e.pageX - canvasOffset.left);
-    iMouseY = Math.floor(e.pageY - canvasOffset.top);
+
+    if (e.targetTouches && e.targetTouches.length == 1) { //one finger touche
+        e.stopPropagation()
+        var touch = e.targetTouches[0];
+        iMouseX = Math.floor(touch.pageX - canvasOffset.left);
+        iMouseY = Math.floor(touch.pageY - canvasOffset.top);
+    } else {
+        iMouseX = Math.floor(e.pageX - canvasOffset.left);
+        iMouseY = Math.floor(e.pageY - canvasOffset.top);
+    }
+
+
+
 
     theSelection.px = iMouseX - theSelection.x;
     theSelection.py = iMouseY - theSelection.y;
 
-    if (theSelection.bHow[0]) {
+
+
+
+    // hovering over resize cubes
+    if (iMouseX > theSelection.x + theSelection.cshift && iMouseX < theSelection.x + theSelection.cshift + 2 * theSelection.csize &&
+        iMouseY > theSelection.y + theSelection.cshift && iMouseY < theSelection.y + theSelection.cshift + 2 * theSelection.csize) {
+
+        theSelection.bDrag[0] = true;
         theSelection.px = iMouseX - theSelection.x;
         theSelection.py = iMouseY - theSelection.y;
+
     }
-    if (theSelection.bHow[1]) {
+
+    if (iMouseX > theSelection.x + theSelection.w - theSelection.cshift - 2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - theSelection.cshift &&
+        iMouseY > theSelection.y + theSelection.cshift && iMouseY < theSelection.y + theSelection.cshift + 2 * theSelection.csize) {
+
         theSelection.px = iMouseX - theSelection.x - theSelection.w;
         theSelection.py = iMouseY - theSelection.y;
+        theSelection.bDrag[1] = true;
     }
-    if (theSelection.bHow[2]) {
+    if (iMouseX > theSelection.x + theSelection.w - theSelection.cshift - 2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - theSelection.cshift &&
+        iMouseY > theSelection.y + theSelection.h - theSelection.cshift - 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - theSelection.cshift) {
+
         theSelection.px = iMouseX - theSelection.x - theSelection.w;
         theSelection.py = iMouseY - theSelection.y - theSelection.h;
+        theSelection.bDrag[2] = true;
     }
-    if (theSelection.bHow[3]) {
+    if (iMouseX > theSelection.x + theSelection.cshift && iMouseX < theSelection.x + theSelection.cshift + 2 * theSelection.csize &&
+        iMouseY > theSelection.y + theSelection.h - theSelection.cshift - 2 * theSelection.csize && iMouseY < theSelection.y + theSelection.h - theSelection.cshift) {
+
         theSelection.px = iMouseX - theSelection.x;
         theSelection.py = iMouseY - theSelection.y - theSelection.h;
+        theSelection.bDrag[3] = true;
     }
+
+
+
+
+
+
 
 
     if (iMouseX > theSelection.x + theSelection.cshift +  2 * theSelection.csize && iMouseX < theSelection.x + theSelection.w - 2 * theSelection.csize - theSelection.cshift &&
@@ -359,19 +368,10 @@ function dragStartHandler (e) { // binding mousedown event
         theSelection.bDragAll = true;
     }
 
-    for (var i = 0; i < 4; i++) {
-        if (theSelection.bHow[i]) {
-            theSelection.bDrag[i] = true;
-        }
-    }
 
 
     if (iMouseX > theSelection.focal.x && iMouseX < theSelection.focal.x + theSelection.focal.w && iMouseY > theSelection.focal.y && iMouseY < theSelection.focal.y + theSelection.focal.w) {
-        for (var i = 0; i < 4; i++) {
-            if (theSelection.bHow[i]) {
-                theSelection.bDrag[i] = false;
-            }
-        }
+        theSelection.removeResizeBoxesDrag();
         theSelection.bDragAll = false;
 
         theSelection.bFocalDrag = true;
