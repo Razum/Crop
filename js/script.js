@@ -6,6 +6,7 @@ var image;
 var iMouseX, iMouseY = 1;
 var theSelection;
 
+
 // define Selection constructor
 function Selection(x, y, w, h, focal){
     this.x = x; // initial positions
@@ -21,7 +22,7 @@ function Selection(x, y, w, h, focal){
 
     this.focal = focal;
 
-    this.bHow = [false, false, false, false]; // hover statuses
+
     this.bDrag = [false, false, false, false]; // drag statuses
     this.bDragAll = false; // drag whole selection
     this.bFocalDrag = false;
@@ -90,7 +91,8 @@ function drawScene() { // main drawScene function
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clear canvas
 
     // draw source image
-    ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    console.log(ctx.canvas);
+    ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
     // and make it darker
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -105,20 +107,21 @@ Selection.prototype.removeResizeBoxesDrag = function () {
     for (var i = 0; i < 4; i++) {
         this.bDrag[i] = false;
     }
-}
+};
 
 
 document.addEventListener("DOMContentLoaded", function(){
-    // loading source image
+
+    canvas = document.getElementById('panel');
+    ctx = canvas.getContext('2d');
     image = new Image();
-    image.onload = function () {
-    };
+    image.onload = function () {}
+
+    
     image.src = 'images/image.jpg';
 
 
     // creating canvas and context objects
-    canvas = document.getElementById('panel');
-    ctx = canvas.getContext('2d');
     canvasWidth = canvas.getAttribute("width");
     canvasHeight = canvas.getAttribute("height");
 
