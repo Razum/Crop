@@ -5,6 +5,7 @@ var canvas, ctx, canvasWidth, canvasHeight;
 var image;
 var iMouseX, iMouseY = 1;
 var theSelection;
+var scaledImgW, scaledImgH, imgXpos;
 
 
 // define Selection constructor
@@ -62,7 +63,8 @@ Selection.prototype.draw = function(){
 
     // draw part of original image
     if (this.w > 0 && this.h > 0) {
-        ctx.drawImage(image, this.x, this.y, this.w, this.h, this.x, this.y, this.w, this.h);
+        image.width = 200;
+        //ctx.drawImage(image, this.x, this.y, this.w, this.h, this.x, this.y, this.w, this.h);
     }
 
     // draw resize cubes
@@ -79,6 +81,18 @@ Selection.prototype.draw = function(){
     ctx.fillRect(this.x + this.cshift + this.csize/2, this.y + this.h - this.cshift - 1.5 * this.csize, this.csize, this.csize);
 };
 
+Selection.prototype.drawFade = function () {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    //top
+    ctx.fillRect(imgXpos, 0, scaledImgW, this.y);
+    //left
+    ctx.fillRect(imgXpos, this.y, this.x - imgXpos, this.h);
+    //bottom
+    ctx.fillRect(imgXpos, this.y + this.h, scaledImgW, scaledImgH - this.y - this.h);
+    //right
+    ctx.fillRect(imgXpos + scaledImgW, this.y, -(imgXpos + scaledImgW - this.x - this.w), this.h);
+};
+
 Selection.prototype.drawFocal = function () {
     var focal = new Image();
     focal.onload = function () {
@@ -90,15 +104,14 @@ Selection.prototype.drawFocal = function () {
 function drawScene() { // main drawScene function
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clear canvas
 
-    // draw source image
-    console.log(ctx.canvas);
-    ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
-
-    // and make it darker
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillStyle = '#323742';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+    // draw source image
+    ctx.drawImage(image, imgXpos, 0, scaledImgW, scaledImgH);
+
     // draw selection
+    theSelection.drawFade();
     theSelection.draw();
     theSelection.drawFocal();
 }
@@ -109,25 +122,42 @@ Selection.prototype.removeResizeBoxesDrag = function () {
     }
 };
 
+function prepareCanvas (img) {
+    image = new Image();
+    image.onload = function () {
+        var imgW = +image.width, imgH = +image.height;
+        if (imgW / canvasWidth > imgH / canvasHeight) {
+            scaledImgW = canvasWidth;
+            scaledImgH = canvasWidth * imgH / imgW;
+        } else {
+            scaledImgW = canvasHeight * imgW / imgH;
+            scaledImgH = canvasHeight;
+        }
+        imgXpos = (canvasWidth - scaledImgW) / 2;
+        theSelection = new Selection(200, 200, 200, 200, {x: 100, y: 100, w: 34});
+        drawScene();
+    };
+    image.src = img;
+}
+
 
 document.addEventListener("DOMContentLoaded", function(){
 
     canvas = document.getElementById('panel');
     ctx = canvas.getContext('2d');
-    image = new Image();
-    image.onload = function () {}
 
-    
-    image.src = 'images/image.jpg';
 
 
     // creating canvas and context objects
     canvasWidth = canvas.getAttribute("width");
     canvasHeight = canvas.getAttribute("height");
 
-    // create initial selection
-    theSelection = new Selection(200, 200, 200, 200, {x: 100, y: 100, w: 34});
+    //scale image
+    prepareCanvas('images/image.jpg');
+    //prepareCanvas('images/tulips.jpg');
+    //prepareCanvas('images/wide.jpg');
 
+    // create initial selection
     canvas.addEventListener("mousemove", dragHandler, false);
     canvas.addEventListener("mousedown", dragStartHandler, false);
     canvas.addEventListener("mouseup", dragEndHandler, false);
@@ -137,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function(){
     canvas.addEventListener("touchstart", dragStartHandler, false);
     canvas.addEventListener("touchend", dragEndHandler, false);
 
-    drawScene();
+
 });
 
 function dragHandler (e) { // binding mouse move event
