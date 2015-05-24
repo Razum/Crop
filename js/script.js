@@ -5,7 +5,7 @@ var canvas, ctx, canvasWidth, canvasHeight;
 var image;
 var iMouseX, iMouseY = 1;
 var theSelection;
-var scaledImgW, scaledImgH, imgXpos;
+var scaledImgW, scaledImgH, imgW, imgH;
 
 
 // define Selection constructor
@@ -120,7 +120,7 @@ Selection.prototype.removeResizeBoxesDrag = function () {
 function prepareCanvas (img) {
     image = new Image();
     image.onload = function () {
-        var imgW = +image.width, imgH = +image.height;
+        imgW = +image.width, imgH = +image.height;
         if (imgW / canvasWidth > imgH / canvasHeight) {
             scaledImgW = canvasWidth;
             scaledImgH = canvasWidth * imgH / imgW;
@@ -130,7 +130,7 @@ function prepareCanvas (img) {
         }
         canvas.setAttribute("width", scaledImgW);
         canvas.setAttribute("height", scaledImgH);
-        theSelection = new Selection(0, 0, scaledImgW /2, scaledImgH /2, {x: 100, y: 100, w: 34});
+        theSelection = new Selection(0, 0, scaledImgW / 2, scaledImgH / 2, {x: 100, y: 100, w: 34});
         drawScene();
     };
     image.src = img;
@@ -149,19 +149,19 @@ document.addEventListener("DOMContentLoaded", function(){
     canvasHeight = canvas.getAttribute("height");
 
     //scale image
-    //prepareCanvas('images/image.jpg');
+    prepareCanvas('images/image.jpg');
     //prepareCanvas('images/tulips.jpg');
-    prepareCanvas('images/wide.jpg');
+    //prepareCanvas('images/wide.jpg');
 
     // create initial selection
     canvas.addEventListener("mousemove", dragHandler, false);
     canvas.addEventListener("mousedown", dragStartHandler, false);
-    canvas.addEventListener("mouseup", dragEndHandler, false);
+    document.addEventListener("mouseup", dragEndHandler, false);
 
 
     canvas.addEventListener("touchmove", dragHandler, false);
     canvas.addEventListener("touchstart", dragStartHandler, false);
-    canvas.addEventListener("touchend", dragEndHandler, false);
+    document.addEventListener("touchend", dragEndHandler, false);
 
 
 });
@@ -427,6 +427,16 @@ function getResults() {
     temp_ctx = temp_canvas.getContext('2d');
     temp_canvas.width = theSelection.w;
     temp_canvas.height = theSelection.h;
+
+    console.log("LEFT SCALED: " + theSelection.x, "LEFT ORIGINAL: " + theSelection.x / scaledImgW * imgW );
+    console.log("TOP SCALED: " + theSelection.y, "TOP ORIGINAL: " + theSelection.y / scaledImgH * imgH );
+
+    console.log("RIGHT SCALED: " + (scaledImgW - theSelection.x - theSelection.w), "RIGHT ORIGINAL: " + (scaledImgW - theSelection.x - theSelection.w) / scaledImgW * imgW );
+    console.log("BOTTOM SCALED: " + (scaledImgH - theSelection.y - theSelection.h), "BOTTOM ORIGINAL: " + (scaledImgH - theSelection.y - theSelection.h) / scaledImgH * imgH );
+
+    console.log("FOCAL X: " + (theSelection.focal.x + theSelection.focal.w / 2)  / theSelection.w * 100);
+    console.log("FOCAL Y: " + (theSelection.focal.y + theSelection.focal.w / 2) / theSelection.h * 100);
+
     temp_ctx.drawImage(image, theSelection.x, theSelection.y, theSelection.w, theSelection.h, 0, 0, theSelection.w, theSelection.h);
     var vData = temp_canvas.toDataURL();
     document.getElementById('crop_result').setAttribute('src', vData);
