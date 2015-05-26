@@ -94,7 +94,7 @@ Selection.prototype.drawFocal = function () {
     };
     focal.src = 'images/focal.png';
     ctx.drawImage(focal, this.focal.x, this.focal.y, this.focal.w, this.focal.w);
-}
+};
 
 function drawScene() { // main drawScene function
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clear canvas
@@ -120,7 +120,7 @@ Selection.prototype.removeResizeBoxesDrag = function () {
 function prepareCanvas (img) {
     image = new Image();
     image.onload = function () {
-        imgW = +image.width, imgH = +image.height;
+        imgW = image.width, imgH = image.height;
         if (imgW / canvasWidth > imgH / canvasHeight) {
             scaledImgW = canvasWidth;
             scaledImgH = canvasWidth * imgH / imgW;
@@ -130,7 +130,7 @@ function prepareCanvas (img) {
         }
         canvas.setAttribute("width", scaledImgW);
         canvas.setAttribute("height", scaledImgH);
-        theSelection = new Selection(0, 0, scaledImgW / 2, scaledImgH / 2, {x: 100, y: 100, w: 34});
+        theSelection = new Selection(0, 0, scaledImgW, scaledImgH , {x: 100, y: 100, w: 34});
         drawScene();
     };
     image.src = img;
@@ -165,6 +165,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 });
+
+
+
 
 function dragHandler (e) { // binding mouse move event
     var canvasOffset = getOffsetRect(canvas);
@@ -211,31 +214,34 @@ function dragHandler (e) { // binding mouse move event
     }
 
 
+
     // in case of dragging of resize cubes
     var iFW, iFH;
     if (theSelection.bDrag[0]) {
         var iFX, iFY;
 
-
         if (iMouseX - theSelection.px < 0) {
             iFX  = 0;
-        } else if (iMouseX - theSelection.px > scaledImgW - theSelection.w) {
+        } else if (theSelection.x < scaledImgW - theSelection.w) {
             iFX  = scaledImgW - theSelection.w
         } else {
             iFX  = iMouseX - theSelection.px
         }
 
+
+
         if (iMouseY - theSelection.py < 0) {
             iFY = 0;
-        } else if (iMouseY - theSelection.py > scaledImgH - theSelection.h) {
+        } else if (theSelection.y < scaledImgH - theSelection.h) {
             iFY = scaledImgH - theSelection.h
         } else {
             iFY = iMouseY - theSelection.py
         }
 
-        iFW = theSelection.w + theSelection.x - iFX;
-        iFH = theSelection.h + theSelection.y - iFY;
+        iFW = +theSelection.w + theSelection.x - iFX;
+        iFH = +theSelection.h + theSelection.y - iFY;
     }
+
 
 
     if (theSelection.bDrag[1]) {
@@ -244,10 +250,9 @@ function dragHandler (e) { // binding mouse move event
 
         var iFX = theSelection.x;
 
-
         if (iMouseY - theSelection.py < 0) {
             iFY = 0;
-        } else if (iMouseY - theSelection.py > scaledImgH - theSelection.h) {
+        } else if (theSelection.y < scaledImgH - theSelection.h) {
             iFY = scaledImgH - theSelection.h
         } else {
             iFY = iMouseY - theSelection.py
@@ -260,7 +265,7 @@ function dragHandler (e) { // binding mouse move event
             iFW = iMouseX - theSelection.px - iFX;
         }
 
-        iFH = theSelection.h + theSelection.y - iFY;
+        iFH = +theSelection.h + theSelection.y - iFY;
     }
 
     if (theSelection.bDrag[2]) {
@@ -287,7 +292,7 @@ function dragHandler (e) { // binding mouse move event
 
         if (iMouseX - theSelection.px < 0) {
             iFX  = 0;
-        } else if (iMouseX - theSelection.px > scaledImgW - theSelection.w) {
+        } else if (theSelection.x < scaledImgW - theSelection.w) {
             iFX  = scaledImgW - theSelection.w
         } else {
             iFX  = iMouseX - theSelection.px
@@ -295,7 +300,7 @@ function dragHandler (e) { // binding mouse move event
 
         iFY = theSelection.y;
 
-        iFW = theSelection.w + theSelection.x - iFX;
+        iFW = +theSelection.w + theSelection.x - iFX;
 
         if (theSelection.y + iMouseY - theSelection.py - iFY > scaledImgH) {
             iFH = scaledImgH - theSelection.y
@@ -303,14 +308,12 @@ function dragHandler (e) { // binding mouse move event
             iFH = iMouseY - theSelection.py - iFY;
         }
 
-
     }
 
 
     if (iFW > theSelection.csize * 6 && iFH > theSelection.csize * 6) {
         theSelection.w = iFW;
         theSelection.h = iFH;
-
         theSelection.x = iFX;
         theSelection.y = iFY;
     }
@@ -335,6 +338,51 @@ function dragHandler (e) { // binding mouse move event
 
     drawScene();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function dragStartHandler (e) { // binding mousedown event
     var canvasOffset = getOffsetRect(canvas);
 
